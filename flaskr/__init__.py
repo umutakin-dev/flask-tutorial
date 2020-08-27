@@ -12,7 +12,7 @@ def create_app(test_config=None):
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
-        app.config.from_pyfile("config.py", silent=True)
+        app.config.from_pyfile('config.py', silent=True)
     else:
         # load the test config if passed in
         app.config.from_mapping(test_config)
@@ -24,11 +24,30 @@ def create_app(test_config=None):
         pass
 
     # a simple page that says hello
-    @app.route("/hello")
+    @app.route('/hello')
     def hello():
-        return "Hello, World!"
+        return 'Hello, World!'
 
+    # sql test
+    @app.route("/sql")
+    def sql():
+        from flaskr.db import get_db
+        db = get_db()
+        db.execute(
+            "INSERT INTO user VALUES (?, ?, ?)", [2, "asd", "asd"])
+        db.commit()
+        return ""
+        #name = db.execute(
+        #    "SELECT * FROM user WHERE username = (?)", ["umutakin"]
+            #).fetchone()
+        #return str(name)
+
+    # db
     from . import db
     db.init_app(app)
+
+    # auth
+    from . import auth
+    app.register_blueprint(auth.bp)
 
     return app
